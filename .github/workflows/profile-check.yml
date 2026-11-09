@@ -1,0 +1,23 @@
+name: Validate Pairty profile
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  profile-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate profile and links
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s profile/README.md
+          grep -q 'https://www.pairty.com' profile/README.md
+          grep -q 'info@pairty.com' profile/README.md
+          if grep -R -n 'pairty\.io' profile/README.md; then
+            echo 'Legacy domain found in public profile' >&2
+            exit 1
+          fi
